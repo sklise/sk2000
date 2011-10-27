@@ -6,8 +6,13 @@
 
 // Arrays for data from the MUX
 int mux0array[16];
+// mux0array
+// 0-7: 10k pots as Analog In
+// 8-9: Rotary Encoder
 int mux1array[16];
 int mux2array[16];
+
+int tones1[8];
 
 void setup()
 {
@@ -16,10 +21,13 @@ void setup()
   pinMode(CONTROL1, OUTPUT);
   pinMode(CONTROL2, OUTPUT);
   pinMode(CONTROL3, OUTPUT);
+  
+  
+  Serial.begin(9600);
 }
 
 void loop()
-{
+{  
   readMux(mux0array,0);
 
   //The following lines are for printing out results of array0
@@ -40,7 +48,7 @@ void loop()
     digitalWrite(15, LOW);
     int j = i+8;
     muxWrite(1,j);
-    tone(15,104+j*2,100);
+    tone(15,mux0array[i],100);
     delay(100);
   }
   
@@ -48,26 +56,22 @@ void loop()
 
 void muxWrite(int mux, int muxPin)
 {
-  int one, two, three;
   switch(mux){
     case 0:
-      one = 1;
-      two = 0;
-      three = 0;
+      pinMode(14, OUTPUT);
+      pinMode(15, INPUT);
+      pinMode(16, INPUT);
       break;
-     case 1:
-       one = 0;
-       two = 1;
-       three = 0;
-       break;
-     default:
-       one = 0;
-       two = 0;
-       three = 1;       
+    case 1:
+      pinMode(14, INPUT);
+      pinMode(15, OUTPUT);
+      pinMode(16, INPUT);    
+    break;
+      pinMode(14, INPUT);
+      pinMode(15, INPUT);
+      pinMode(16, OUTPUT);  
+    default:      
   }
-  pinMode(14, one);
-  pinMode(15, two);
-  pinMode(16, three);
   
   digitalWrite(CONTROL0, (muxPin&15)>>3); //S3
   digitalWrite(CONTROL1, (muxPin&7)>>2);  //S2
